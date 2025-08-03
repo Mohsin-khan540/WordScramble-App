@@ -17,6 +17,8 @@ struct ContentView: View {
     @State private var errorTitle = ""
     @State private var showError = false
     
+    @State private var playerScore = 0
+    
     var body: some View {
         NavigationStack{
             List{
@@ -32,6 +34,16 @@ struct ContentView: View {
                         }
                     }
                 }
+                Section{
+                    Text("your score \(playerScore) points")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(width: 200, height: 50)
+                        .background(.blue)
+                        .clipShape(.rect(cornerRadius: 25))
+                }
+                .padding(.horizontal, 80)
+                .listRowBackground(Color.clear)
             }
             .navigationTitle(rootWord)
             .onSubmit(addNewWord)
@@ -43,8 +55,10 @@ struct ContentView: View {
             }
             .toolbar{
                 Button("Reset"){
+                    playerScore = 0
                     newWord = ""
                     userWord.removeAll()
+                    startGame()
                 }
             }
         }
@@ -53,9 +67,17 @@ struct ContentView: View {
     func addNewWord(){
         let Answer = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        guard Answer.count > 0 else {
+        guard Answer.count > 2 else {
+            wordError(title: "too short", message: "words must be longer than 2 letters")
             return
         }
+        
+        guard Answer != rootWord else {
+            wordError(title: "Same as root", message: "You can't use the root word.")
+            return
+        }
+
+        
         
         guard isOriginal(word: Answer) else{
             wordError(title: "word used already", message: "be more original")
@@ -76,6 +98,9 @@ struct ContentView: View {
             userWord.insert(Answer , at: 0)
         }
         newWord = ""
+//        playerScore += 1
+        playerScore += Answer.count * 10
+
     }
     
     func startGame(){
